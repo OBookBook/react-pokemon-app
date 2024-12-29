@@ -6,10 +6,8 @@ export const getAllPokemon = async (url: string) => {
 
     return data;
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      throw new Error(`Failed to fetch data: ${error.message}`);
-    } else {
-      throw new Error("An unknown error occurred");
-    }
+    const message =
+      error instanceof Error ? error.message : "An unknown error occurred";
+    throw new Error(`Failed to fetch data: ${message}`);
   }
 };
