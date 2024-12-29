@@ -11,3 +11,10 @@ export const getAllPokemon = async (url: string) => {
     throw new Error(`Failed to fetch data: ${message}`);
   }
 };
+
+export const getPokemon = async (url: string) => {
+  const response = await fetch(url);
+  const data = response.json();
+
+  return data;
+};
