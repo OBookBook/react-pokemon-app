@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import { getAllPokemon } from "./utils/pokemon";
 
@@ -9,11 +9,13 @@ function App() {
     console.log(res);
   };
 
+  const [loading, setLoading] = useState<boolean>(true);
   useEffect(() => {
     fetchPokemonData();
+    setLoading(false);
   }, []);
 
-  return <></>;
+  return <>{loading ? <h1>Loading</h1> : <h1>Get Pokemon Datas</h1>}</>;
 }
 
 export default App;
