@@ -1,4 +1,17 @@
-const Card = ({ pokemon }) => {
+interface Pokemon {
+  sprites: { front_default: string };
+  name: string;
+  types: { type: { name: string } }[];
+  weight: number;
+  height: number;
+  abilities: { ability: { name: string } }[];
+}
+
+interface CardProps {
+  pokemon: Pokemon;
+}
+
+const Card = ({ pokemon }: CardProps) => {
   return (
     <div className="card">
       <div className="cardImg">
