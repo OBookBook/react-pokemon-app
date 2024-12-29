@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import { getAllPokemon, getPokemon } from "./utils/pokemon";
+import Card from "./components/Card/Card";
 
 type Pokemon = {
   name: string;
@@ -23,15 +24,27 @@ function App() {
     );
     SetPokemonData(_pokemonData);
   };
-
   const [loading, setLoading] = useState<boolean>(true);
   const [pokemonData, SetPokemonData] = useState<any[]>([]);
-  console.log(pokemonData);
   useEffect(() => {
     fetchPokemonData();
   }, []);
 
-  return <>{loading ? <h1>Loading</h1> : <h1>Get Pokemon Datas</h1>}</>;
+  return (
+    <>
+      {loading ? (
+        <h1>Loading</h1>
+      ) : (
+        <>
+          <div className="pokemonCardContainer">
+            {pokemonData.map((pokemon, i) => {
+              return <Card key={i} pokemon={pokemon} />;
+            })}
+          </div>
+        </>
+      )}
+    </>
+  );
 }
 
 export default App;
