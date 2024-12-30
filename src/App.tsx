@@ -4,6 +4,7 @@ import { getAllPokemon, getPokemon } from "./utils/pokemon";
 import Card from "./components/Card/Card";
 import Navbar from "./components/Navbar/Navbar";
 import Btn from "./components/Btn/Btn";
+import { INITIAL_POKEMON_URL } from "./constants/api";
 
 type Pokemon = {
   name: string;
@@ -11,7 +12,7 @@ type Pokemon = {
 };
 
 function App() {
-  const initialURL = "https://pokeapi.co/api/v2/pokemon/";
+  const initialURL = INITIAL_POKEMON_URL;
   const fetchPokemonData = async () => {
     const res = await getAllPokemon(initialURL);
     loadPokemon(res.results);
