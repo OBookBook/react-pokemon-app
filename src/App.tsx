@@ -14,6 +14,7 @@ function App() {
   const fetchPokemonData = async () => {
     const res = await getAllPokemon(initialURL);
     loadPokemon(res.results);
+    setNextURL(res.next);
     setLoading(false);
   };
   const loadPokemon = async (data: Pokemon[]): Promise<void> => {
@@ -27,9 +28,21 @@ function App() {
   };
   const [loading, setLoading] = useState<boolean>(true);
   const [pokemonData, SetPokemonData] = useState<any[]>([]);
+  const [nextURL, setNextURL] = useState<string>("");
+
   useEffect(() => {
     fetchPokemonData();
   }, []);
+
+  const handleNextPage = async () => {
+    setLoading(true);
+    const data = await getAllPokemon(nextURL);
+    await loadPokemon(data.results);
+    setNextURL(data.next);
+    setLoading(false);
+  };
+
+  const handlePrevPage = () => {};
 
   return (
     <>
@@ -43,6 +56,10 @@ function App() {
               {pokemonData.map((pokemon, i) => {
                 return <Card key={i} pokemon={pokemon} />;
               })}
+            </div>
+            <div className="btn">
+              <button onClick={handlePrevPage}>Prev</button>
+              <button onClick={handleNextPage}>Next</button>
             </div>
           </>
         )}
