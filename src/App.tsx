@@ -3,7 +3,7 @@ import "./App.css";
 import { getAllPokemon, getPokemon } from "./utils/pokemon";
 import Card from "./components/Card/Card";
 import Navbar from "./components/Navbar/Navbar";
-import Btn from "./components/Btn/btn";
+import Btn from "./components/Btn/Btn";
 
 type Pokemon = {
   name: string;
