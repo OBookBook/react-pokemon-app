@@ -6,8 +6,20 @@
 
 .pokemonCardContainer {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   place-items: center;
   gap: 20px;
   margin-top: 20px;
+}
+
+@media (max-width: 1024px) {
+  .pokemonCardContainer {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .pokemonCardContainer {
+    grid-template-columns: 1fr;
+  }
 }
