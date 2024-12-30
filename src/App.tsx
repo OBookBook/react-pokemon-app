@@ -31,7 +31,7 @@ function App() {
   }, []);
 
   return (
-    <>
+    <div className="App">
       {loading ? (
         <h1>Loading</h1>
       ) : (
@@ -43,7 +43,7 @@ function App() {
           </div>
         </>
       )}
-    </>
+    </div>
   );
 }
 
