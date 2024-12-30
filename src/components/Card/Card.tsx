@@ -1,3 +1,5 @@
+import "./Card.css";
+
 interface Pokemon {
   sprites: { front_default: string };
   name: string;
