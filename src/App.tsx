@@ -1,35 +1,94 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import "./App.css";
+import Btn from "./components/Btn/Btn";
+import Card from "./components/Card/Card";
+import { useEffect, useState } from "react";
+import Navbar from "./components/Navbar/Navbar";
+import { INITIAL_POKEMON_URL } from "./constants/api";
+import { getAllPokemon, getPokemon } from "./utils/pokemon";
+
+type PokemonData = {
+  name: string;
+  url: string;
+  sprites: {
+    front_default: string;
+  };
+  types: Array<{
+    type: {
+      name: string;
+    };
+  }>;
+  weight: number;
+  height: number;
+  abilities: Array<{
+    ability: {
+      name: string;
+    };
+  }>;
+};
 
 function App() {
-  const [count, setCount] = useState(0)
+  const initialURL = INITIAL_POKEMON_URL;
+  const [state, setState] = useState<{
+    loading: boolean;
+    pokemonData: PokemonData[];
+    nextURL: string;
+    prevURL: string;
+  }>({
+    loading: true,
+    pokemonData: [],
+    nextURL: "",
+    prevURL: "",
+  });
+
+  const fetchPokemonData = async (url: string) => {
+    try {
+      const res = await getAllPokemon(url);
+      const pokemonData = await Promise.all(
+        res.results.map((pokemon: PokemonData) => getPokemon(pokemon.url))
+      );
+      setState({
+        loading: false,
+        pokemonData,
+        nextURL: res.next,
+        prevURL: res.previous,
+      });
+    } catch (error) {
+      console.error("Failed to fetch data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPokemonData(initialURL);
+  }, []);
+
+  const handlePageChange = (url: string) => {
+    if (url) fetchPokemonData(url);
+  };
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+      <Navbar />
+      <div className="App">
+        <Btn
+          handlePrevPage={() => handlePageChange(state.prevURL)}
+          handleNextPage={() => handlePageChange(state.nextURL)}
+        />
+        {state.loading ? (
+          <h1>Loading</h1>
+        ) : (
+          <div className="pokemonCardContainer">
+            {state.pokemonData.map((pokemon, i) => (
+              <Card key={i} pokemon={pokemon} />
+            ))}
+          </div>
+        )}
+        <Btn
+          handlePrevPage={() => handlePageChange(state.prevURL)}
+          handleNextPage={() => handlePageChange(state.nextURL)}
+        />
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
