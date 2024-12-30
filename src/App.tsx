@@ -3,6 +3,7 @@ import "./App.css";
 import { getAllPokemon, getPokemon } from "./utils/pokemon";
 import Card from "./components/Card/Card";
 import Navbar from "./components/Navbar/Navbar";
+import Btn from "./components/Btn/btn";
 
 type Pokemon = {
   name: string;
@@ -15,6 +16,7 @@ function App() {
     const res = await getAllPokemon(initialURL);
     loadPokemon(res.results);
     setNextURL(res.next);
+    setPrevURL(res.prev);
     setLoading(false);
   };
   const loadPokemon = async (data: Pokemon[]): Promise<void> => {
@@ -29,6 +31,7 @@ function App() {
   const [loading, setLoading] = useState<boolean>(true);
   const [pokemonData, SetPokemonData] = useState<any[]>([]);
   const [nextURL, setNextURL] = useState<string>("");
+  const [prevURL, setPrevURL] = useState<string>("");
 
   useEffect(() => {
     fetchPokemonData();
@@ -39,15 +42,26 @@ function App() {
     const data = await getAllPokemon(nextURL);
     await loadPokemon(data.results);
     setNextURL(data.next);
+    setPrevURL(data.previous);
     setLoading(false);
   };
 
-  const handlePrevPage = () => {};
+  const handlePrevPage = async () => {
+    if (!prevURL) return;
+
+    setLoading(true);
+    const data = await getAllPokemon(prevURL);
+    await loadPokemon(data.results);
+    setNextURL(data.next);
+    setPrevURL(data.previous);
+    setLoading(false);
+  };
 
   return (
     <>
       <Navbar />
       <div className="App">
+        <Btn handlePrevPage={handlePrevPage} handleNextPage={handleNextPage} />
         {loading ? (
           <h1>Loading</h1>
         ) : (
@@ -57,10 +71,10 @@ function App() {
                 return <Card key={i} pokemon={pokemon} />;
               })}
             </div>
-            <div className="btn">
-              <button onClick={handlePrevPage}>Prev</button>
-              <button onClick={handleNextPage}>Next</button>
-            </div>
+            <Btn
+              handlePrevPage={handlePrevPage}
+              handleNextPage={handleNextPage}
+            />
           </>
         )}
       </div>
