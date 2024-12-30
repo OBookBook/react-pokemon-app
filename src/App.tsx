@@ -1,83 +1,91 @@
-import { useEffect, useState } from "react";
 import "./App.css";
-import { getAllPokemon, getPokemon } from "./utils/pokemon";
-import Card from "./components/Card/Card";
-import Navbar from "./components/Navbar/Navbar";
 import Btn from "./components/Btn/Btn";
+import Card from "./components/Card/Card";
+import { useEffect, useState } from "react";
+import Navbar from "./components/Navbar/Navbar";
 import { INITIAL_POKEMON_URL } from "./constants/api";
+import { getAllPokemon, getPokemon } from "./utils/pokemon";
 
-type Pokemon = {
+type PokemonData = {
   name: string;
   url: string;
+  sprites: {
+    front_default: string;
+  };
+  types: Array<{
+    type: {
+      name: string;
+    };
+  }>;
+  weight: number;
+  height: number;
+  abilities: Array<{
+    ability: {
+      name: string;
+    };
+  }>;
 };
 
 function App() {
   const initialURL = INITIAL_POKEMON_URL;
-  const fetchPokemonData = async () => {
-    const res = await getAllPokemon(initialURL);
-    loadPokemon(res.results);
-    setNextURL(res.next);
-    setPrevURL(res.prev);
-    setLoading(false);
+  const [state, setState] = useState<{
+    loading: boolean;
+    pokemonData: PokemonData[];
+    nextURL: string;
+    prevURL: string;
+  }>({
+    loading: true,
+    pokemonData: [],
+    nextURL: "",
+    prevURL: "",
+  });
+
+  const fetchPokemonData = async (url: string) => {
+    try {
+      const res = await getAllPokemon(url);
+      const pokemonData = await Promise.all(
+        res.results.map((pokemon: PokemonData) => getPokemon(pokemon.url))
+      );
+      setState({
+        loading: false,
+        pokemonData,
+        nextURL: res.next,
+        prevURL: res.previous,
+      });
+    } catch (error) {
+      console.error("Failed to fetch data:", error);
+    }
   };
-  const loadPokemon = async (data: Pokemon[]): Promise<void> => {
-    const _pokemonData = await Promise.all(
-      data.map((pokemon) => {
-        let pokemonRecord = getPokemon(pokemon.url);
-        return pokemonRecord;
-      })
-    );
-    SetPokemonData(_pokemonData);
-  };
-  const [loading, setLoading] = useState<boolean>(true);
-  const [pokemonData, SetPokemonData] = useState<any[]>([]);
-  const [nextURL, setNextURL] = useState<string>("");
-  const [prevURL, setPrevURL] = useState<string>("");
 
   useEffect(() => {
-    fetchPokemonData();
+    fetchPokemonData(initialURL);
   }, []);
 
-  const handleNextPage = async () => {
-    setLoading(true);
-    const data = await getAllPokemon(nextURL);
-    await loadPokemon(data.results);
-    setNextURL(data.next);
-    setPrevURL(data.previous);
-    setLoading(false);
-  };
-
-  const handlePrevPage = async () => {
-    if (!prevURL) return;
-
-    setLoading(true);
-    const data = await getAllPokemon(prevURL);
-    await loadPokemon(data.results);
-    setNextURL(data.next);
-    setPrevURL(data.previous);
-    setLoading(false);
+  const handlePageChange = (url: string) => {
+    if (url) fetchPokemonData(url);
   };
 
   return (
     <>
       <Navbar />
       <div className="App">
-        <Btn handlePrevPage={handlePrevPage} handleNextPage={handleNextPage} />
-        {loading ? (
+        <Btn
+          handlePrevPage={() => handlePageChange(state.prevURL)}
+          handleNextPage={() => handlePageChange(state.nextURL)}
+        />
+        {state.loading ? (
           <h1>Loading</h1>
         ) : (
-          <>
-            <div className="pokemonCardContainer">
-              {pokemonData.map((pokemon, i) => {
-                return <Card key={i} pokemon={pokemon} />;
-              })}
-            </div>
-            <Btn
-              handlePrevPage={handlePrevPage}
-              handleNextPage={handleNextPage}
-            />
-          </>
+          <div className="pokemonCardContainer">
+            {state.pokemonData.map((pokemon, i) => (
+              <Card key={i} pokemon={pokemon} />
+            ))}
+          </div>
         )}
+        <Btn
+          handlePrevPage={() => handlePageChange(state.prevURL)}
+          handleNextPage={() => handlePageChange(state.nextURL)}
+        />
       </div>
     </>
   );
